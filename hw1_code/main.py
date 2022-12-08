@@ -75,7 +75,7 @@ if __name__ == "__main__":
         'log_save_path': os.path.join('log', dir_name, name),  # Your log will be saved here
         'current_episode': 0,
         'hidden_dim': 64,
-        'dropout': 0.5,
+        'dropout': 0.25,
     }
     set_seed(seed)
     print(config)
