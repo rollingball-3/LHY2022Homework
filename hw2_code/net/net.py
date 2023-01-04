@@ -43,18 +43,24 @@ class HW2_net(nn.Module):
         out = self.net(d)
         return out
 
-
+# 理解错了
 class HW2RNN_net(nn.Module):
 
-    def __init__(self, input_dim=39, output_dim=100, layers_number=2, dropout=0.25):
+    def __init__(self, input_dim=39, output_dim=128, layers_number=2, dropout=0.25, batch_norm =False):
         super(HW2RNN_net, self).__init__()
 
         self.lstm = nn.LSTM(input_dim, output_dim, layers_number, dropout=dropout, batch_first=True)
 
+        if batch_norm:
+            self.batch_normalize_layer = nn.BatchNorm1d(output_dim)
+        else:
+            self.batch_normalize_layer = None
         self.linear = nn.Linear(output_dim, 41)
 
     def forward(self, d):
         output, (hn, cn) = self.lstm(d)
         output = output.squeeze()
+        if self.batch_normalize_layer:
+            self.batch_normalize_layer(output)
         out = self.linear(output)
         return out

@@ -23,8 +23,8 @@ def train(config, total_dataset, model, train_function, device):
     print("Train_dataset_len:{}".format(len(train_dataset)))
     print("valid_dataset_len:{}".format(len(valid_dataset)))
 
-    train_loader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True, pin_memory=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=config['batch_size'], shuffle=True, pin_memory=True)
+    train_loader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True, pin_memory=True, num_workers=4)
+    valid_loader = DataLoader(valid_dataset, batch_size=config['batch_size'], shuffle=True, pin_memory=True, num_workers=4)
 
     model.apply(init_weights)
     model.to(device)
@@ -57,44 +57,44 @@ def eval_model(config, test_dataset, new_model, device):
 if __name__ == "__main__":
     # para
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    seed = 697442
-    dir_name = "RNN_deep"
-    # dir_name = "dropout"
-    name = "8" + "-" + str(seed)
+    seed = 697444
+    # dir_name = "RNN_normalize"
+    dir_name = "DNN"
+    name = str(seed)
     config = {
         'seed': seed,  # Your seed number, you can pick your lucky number. :)
         'valid_ratio': 0.1,  # validation_size = train_size * valid_ratio
         'n_epochs': 100,  # Number of epochs.
-        'batch_size': 1,
-        'learning_rate': 1e-3,
-        'early_stop': 20,  # If model has not improved for this many consecutive epochs, stop training.
+        'batch_size': 512,
+        'learning_rate': 5e-4,
+        'early_stop': 40,  # If model has not improved for this many consecutive epochs, stop training.
         'model_save_path': os.path.join('log', dir_name, name, 'model.ckpt'),  # Your model will be saved here.
         'log_save_path': os.path.join('log', dir_name, name),  # Your log will be saved here
         'current_episode': 0,
         'batch_normalize': True,
         'dropout': 0.25,
-        'RNN_output_dim': 50,
-        'RNN_layers_number': 8,
+        'RNN_output_dim': 128,
+        'RNN_layers_number': 2,
     }
     # dataset
-    # total_dataset = HW2TrainDataset()
-    total_dataset = HW2RNNTrainDataset()
-    # test_dataset = HW2TestDataset()
-    test_dataset = HW2RNNTestDataset()
+    total_dataset = HW2TrainDataset()
+    # total_dataset = HW2RNNTrainDataset()
+    test_dataset = HW2TestDataset()
+    # test_dataset = HW2RNNTestDataset()
 
     # net
-    # model = HW2_net(11 * 39, 41, use_BatchNorm=config['batch_normalize'], dropout=config['dropout'])
-    model = HW2RNN_net(39, output_dim=config['RNN_output_dim'], layers_number=config['RNN_layers_number'],
-                       dropout=config['dropout'])
+    model = HW2_net(11 * 39, 41, use_BatchNorm=config['batch_normalize'], dropout=config['dropout'])
+    # model = HW2RNN_net(39, output_dim=config['RNN_output_dim'], layers_number=config['RNN_layers_number'],
+    #                    dropout=config['dropout'], batch_norm=config['batch_normalize'])
 
     # train
-    train_function = Rnn_trainer
+    # train_function = Rnn_trainer
+    train_function = trainer
     train(config, total_dataset, model, train_function, device)
 
     # eval
     del model
-    # new_model = HW2_net(11 * 39, 41, use_BatchNorm=config['batch_normalize'], dropout=config['dropout'])
-    # new_model = HW2RNN_net()
-    new_model = HW2RNN_net(39, output_dim=config['RNN_output_dim'], layers_number=config['RNN_layers_number'],
-                           dropout=config['dropout'])
+    new_model = HW2_net(11 * 39, 41, use_BatchNorm=config['batch_normalize'], dropout=config['dropout'])
+    # new_model = HW2RNN_net(39, output_dim=config['RNN_output_dim'], layers_number=config['RNN_layers_number'],
+    #                        dropout=config['dropout'], batch_norm=config['batch_normalize'])
     eval_model(config, test_dataset, new_model, device)

@@ -32,7 +32,7 @@ class HW2TrainDataset(Dataset):
             assert len(data_line) == torch_data.shape[0]
             length = torch_data.shape[0]
 
-            # 边界数据怎么办
+            # 边界数据
             for j in range(0, length):
                 if j < frames:
                     add_torch = torch_data[0].repeat((frames - j, 1))
